@@ -8,7 +8,7 @@ fn path_exists(path: &str) -> bool {
     Path::new(path).exists()
 }
 
-pub fn get_file_contents(path: &str) -> Result<String, String> {
+pub fn get_file_contents(path: &str) -> Result<Vec<u8>, String> {
     if !path_exists(path) {
         return Err("[-] Path does not exist".to_owned());
     }
@@ -16,9 +16,9 @@ pub fn get_file_contents(path: &str) -> Result<String, String> {
     // We can unwrap since we know that the path exists
     let f: File = File::open(path).unwrap();
     let mut reader: BufReader<File> = BufReader::new(f);
-    let mut buf: String = String::new();
+    let mut buf: Vec<u8> = vec![];
 
-    let result = reader.read_to_string(&mut buf);
+    let result = reader.read_to_end(&mut buf);
 
     match result {
         Ok(_) => return Ok(buf),

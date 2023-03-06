@@ -55,7 +55,7 @@ pub fn generate_key(len: usize) -> String {
 
 pub fn parse_key(path: &str) -> Result<Vec<String>, String> {
     match file::get_file_contents(path) {
-        Ok(c) => Ok(c.split("\n").map(|c| c.to_owned()).collect::<Vec<String>>()),
+        Ok(c) => Ok(std::str::from_utf8(&c).unwrap().split("\n").map(|c| c.to_owned()).collect::<Vec<String>>()),
         Err(e) => return Err(e),
     }
 }
