@@ -2,11 +2,15 @@ pub mod crypt;
 pub mod file;
 
 use rand::prelude::*;
-use std::io::{stdin, stdout, Write};
+// use std::io::{stdin, stdout, Write};
 
 pub fn help(args: &Vec<String>) -> () {
     println!("Backup Program by Javier Díaz.\n\nMissing arguments. Example usage:\n {} encrypt example.txt\n\nModes:\n- encrypt [key file] [file] => Encrypts a file\n- decrypt [key file] [file] => Decrypts a file\n- generate_key => Generates a secure key to be used\n\nOptional arguments:\n-h => display this message", args[0])
 }
+
+/* 
+
+// Python-like input function
 
 pub fn input(query: &str) -> Result<String, String> {
     match stdout().write(query.as_bytes()) {
@@ -27,7 +31,9 @@ pub fn input(query: &str) -> Result<String, String> {
     };
 
     Ok(input)
-}
+} 
+
+*/
 
 pub fn generate_key(len: usize) -> String {
     let d = "abcdefghijkmnopqrstuvwxyzABCDEFGHIJKLMNOPRSTUVWXYZ1234567890_-!$%&"
