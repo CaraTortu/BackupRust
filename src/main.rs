@@ -9,6 +9,8 @@ use utils::parse_key;
 use std::env;
 
 fn write_key() {
+    println!("[i] Generating key and nonce");
+
     let key = generate_key(32);
     let nonce = generate_key(16);
 
@@ -49,18 +51,57 @@ fn main() {
 
                 let (key, nonce) = match read_key(args.get(2).unwrap()) {
                     Ok(v) => v,
+                    Err(_) => return println!("[-] The key path does not exist"),
+                };
+
+                println!("[+] Read and parsed key");
+
+                let file_contents = match get_file_contents(args.get(3).unwrap()) {
+                    Ok(content) => content,
+                    Err(_) => {
+                        return println!("[-] The file you are trying to encrypt does not exist")
+                    }
+                };
+
+                println!("[+] File read successfully");
+
+                match crypt::encrypt(&file_contents, &key, &nonce) {
+                    Ok(encrypted_file) => {
+                        let new_path = args.get(3).unwrap().to_owned() + ".enc";
+                        match write_file(&new_path, &encrypted_file) {
+                            Ok(_) => {
+                                return println!(
+                                    "[+] File written successfully. The file name is {new_path}"
+                                )
+                            }
+                            Err(e) => return println!("[-] Error writing file: {e}"),
+                        }
+                    }
                     Err(e) => return println!("{e}"),
+                };
+            }
+            "decrypt" => {
+                if args.len() < 4 {
+                    utils::help(&args);
+                    return;
+                }
+
+                let (key, nonce) = match read_key(args.get(2).unwrap()) {
+                    Ok(v) => v,
+                    Err(_) => return println!("[-] The key path does not exist"),
                 };
 
                 let file_contents = match get_file_contents(args.get(3).unwrap()) {
                     Ok(content) => content,
-                    Err(e) => return println!("{e}"),
+                    Err(_) => {
+                        return println!("[-] The file you are trying to decrypt does not exist")
+                    }
                 };
 
-                match crypt::encrypt(&file_contents, &key, &nonce) {
+                match crypt::decrypt(&file_contents, &key, &nonce) {
                     Ok(encrypted_file) => {
                         match write_file(
-                            &(args.get(3).unwrap().to_owned() + ".enc"),
+                            &(args.get(3).unwrap().to_owned().replace(".enc", ".org")),
                             &encrypted_file,
                         ) {
                             Ok(_) => return println!("[+] File written successfully"),
@@ -70,8 +111,7 @@ fn main() {
                     Err(e) => return println!("{e}"),
                 };
             }
-            "decrypt" => todo!(),
-            _ => (),
+            _ => return println!("[-] Invalid action. The valid actions are: encrypt, decrypt, generate_key"),
         },
         None => return, // We should not get here because of the previous check
     };
